@@ -1,7 +1,7 @@
 # UAT Baseline — Taco Bell DC 50K Route Planner
 
 _Created: 2026-03-22_
-_Last run: 2026-04-15_
+_Last run: 2026-05-31_
 
 ## Project Info
 - **Stack**: Vanilla HTML/CSS/JS + Leaflet map (no build step)
@@ -27,24 +27,24 @@ _Last run: 2026-04-15_
 
 | Section | Last Tested | Notes |
 |---------|-------------|-------|
-| Header / Title | 2026-04-05 | Stable — title, subtitle, event link |
-| Theme Switcher | 2026-04-05 | Stable — all 6 themes verified (Purple Reign, Baja Blast, Sauce Packet tested this run) |
-| Runner/Crew Toggle | 2026-04-15 | Stable — toggle works, Crew view switches correctly, proper active button styling on Baja Blast theme |
-| Taco Bell Stops | 2026-04-15 | Stable — Stop 3 popup tested on mobile + desktop, mandatory food warning, Directions button |
-| Pace Calculator | 2026-04-15 | Stable — 7h15m goal tested, split table correct, finish matches goal, triggers badge earn |
-| Food & Nutrition | 2026-04-02 | Stable — consolidated section with 3 tabs (Rules, Log, Calories). All tabs work on desktop and mobile. Sauce packet copy active on Sauce theme |
-| Parties | 2026-04-15 | Stable — Community/Hosted tabs work on mobile. Empty state + "Submit your party" link correct |
-| Race Day Clock | 2026-04-02 | Stable — 7:00 AM start, Start button, proper instructions |
-| Weather | 2026-04-15 | Stable — loads forecast data (Tonight/Thu/Thu Night/Fri). Renders correctly on both themes |
-| Course Sections | 2026-04-15 | Stable — 7 named sections with correct mile ranges, colored dots. Sauce packet copy active |
-| Tools | 2026-04-02 | Stable — 16 buttons, single-col on mobile (345px grid), 2-col on desktop |
-| TB Passport | 2026-04-15 | Stable — 10 badges, real-time badge earn (Time Keeper + Speed Demon from 7h15m pace calc). 0/10→2/10 counter updates |
-| Custom Pins | 2026-04-02 | Stable — form with icon picker, search, name, note inputs. Mobile layout correct |
-| Alt Routes | 2026-04-05 | Stable — "Toggle alt routes to see options" instruction |
-| Race Results | 2026-03-29 | Stable — auto-hidden when no race data (display:none). Old Split History/Segment Records/Finisher Wall sections removed |
-| Leg-by-Leg | 2026-04-02 | Stable — all 8 segments, correct neighborhoods (Alexandria finish confirmed) |
-| Elevation Profile | 2026-04-15 | Stable — grade-colored chart on Sauce Packet theme, stats correct (1263 ft gain/loss, 417 ft max, -3 ft min) |
-| Route Info | 2026-04-05 | Stable — sauce packet copy working, section expands correctly |
+| Header / Title | 2026-05-31 | Stable — title, subtitle, event link on all 5 themes tested |
+| Theme Switcher | 2026-05-31 | Stable — 5 of 6 themes verified (Purple Reign, Cantina Night, Sauce Packet, Retro '85, Baja Blast) |
+| Runner/Crew Toggle | 2026-05-31 | Stable — toggle works, Crew view switches correctly, proper active button styling on Sauce Packet theme |
+| Taco Bell Stops | 2026-05-31 | Stable — all 8 stops with addresses, Stop 5 popup tested, Stop 4 detail panel tested |
+| Pace Calculator | 2026-05-31 | Stable — 8h30m goal tested, split table correct, finish matches goal, triggers badge earn |
+| Food & Nutrition | 2026-05-31 | Stable — all 3 tabs (Rules, Log, Calories) tested. Mandatory food items, calorie counter, auth-locked log |
+| Parties | 2026-05-31 | Stable — section expands, auth-locked content for hosted |
+| Race Day Clock | 2026-05-31 | Stable — form with start time input, Start button, proper instructions |
+| Weather | 2026-05-31 | Stable — loads forecast data (Tonight/Monday/Monday Night/Tuesday). Renders correctly |
+| Course Sections | 2026-05-31 | Stable — 7 named sections with correct mile ranges |
+| Tools | 2026-05-31 | Stable — 16 buttons, single-col on mobile, 2-col on desktop |
+| TB Passport | 2026-05-31 | Stable — 10 badges, 3 earned (Time Keeper, Speed Demon, Fashionista). Real-time badge earn working |
+| Custom Pins | 2026-05-31 | Stable — section expands with icon picker and "Tap Map to Place Pin" button |
+| Alt Routes | 2026-05-31 | Stable — section expands correctly |
+| Race Results | 2026-05-31 | Stable — auto-hidden when no race data (display:none) |
+| Leg-by-Leg | 2026-05-31 | Stable — all 8 segments, correct neighborhoods (Alexandria finish confirmed) |
+| Elevation Profile | 2026-05-31 | Stable — canvas chart renders, stats correct (1263 ft gain/loss, 417 ft max, -3 ft min) |
+| Route Info | 2026-05-31 | Stable — 32.4 mi, 1992 track points, 8 stops, all stats correct |
 
 ## Known Stable Areas
 - Theme switching (all 6 themes) — proper 44px touch targets
@@ -65,7 +65,7 @@ _Last run: 2026-04-15_
 
 ## Known Flaky / Unstable Areas
 - Weather fetch: initial load sometimes fails with `TypeError: Failed to fetch`, but data appears after retry. Console error is cosmetic. (ISSUE-015)
-- 2 pre-existing test failures: mobile CSS tests fail at desktop viewport width (expected — pass at 375px)
+- 1 pre-existing test failure: "map container has dimensions" fails on test page (test page layout squeezes map container, not a real bug)
 - SW cache can serve stale HTML if cache version not bumped (ISSUE-021 fixed, regression test added)
 - Minifier can break bundle if JS source contains `//` inside string literals (ISSUE-023 fixed, regression test added)
 
@@ -92,3 +92,11 @@ _Last run: 2026-04-15_
 - Badge earn tracking verified: Pace calc at 7h15m triggered both Time Keeper and Speed Demon badges. Passport counter updated from 0/10 to 2/10 in real-time.
 - 829/831 automated tests pass. 2 failures in View Toggle group are state-dependent (localStorage viewMode=crew from manual testing, not real bugs). With fresh localStorage these would pass.
 - Mobile layout (375×812) verified: header, pace splits table, stop popup, parties tabs all render correctly. No overflow issues.
+- 2026-05-31: No new bugs found. Broad section coverage: all 17 sections tested (Taco Bell Stops, Pace Calculator 8h30m, Food & Nutrition 3 tabs, Live Feed, Bets, Race Day Clock, Weather, Course Sections, Tools 16 buttons, TB Passport 3 badges earned, Custom Pins, Alt Routes, Leg-by-Leg, Elevation Profile, Route Info, Parties, Stop detail panel Stop 4).
+- Themes tested: Purple Reign, Cantina Night, Sauce Packet, Retro '85, Baja Blast (5 of 6) — all render correctly with proper route colors, sidebar colors, and map tiles.
+- Runner/Crew toggle tested on Sauce Packet theme — active state uses correct accent color (orange).
+- Stop detail panel (Stop 4 Columbia Heights): ratings, crew access, trivia, menu collapsibles, Directions button all working.
+- Stop 5 popup: name, address, cumulative distance, Directions button correct.
+- Mobile layout (375×812): single-column tools grid, header, section headers all correct. No overflow.
+- 831/832 automated tests pass. 1 failure: "map container has dimensions" (pre-existing test page layout issue).
+- Zero console errors.

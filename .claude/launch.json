@@ -4,7 +4,7 @@
     {
       "name": "tb50k",
       "runtimeExecutable": "/usr/bin/python3",
-      "runtimeArgs": ["/tmp/tb50k_serve.py"],
+      "runtimeArgs": ["-m", "http.server", "8050"],
       "port": 8050
     }
   ]

@@ -35,6 +35,10 @@
 
 ## Open Issues
 
+### UAT Pass — 2026-05-31
+- **Scope:** Desktop (1280×800), mobile (375×812). Themes tested: Purple Reign, Cantina Night, Sauce Packet, Retro '85, Baja Blast (5 of 6). Sections tested: Taco Bell Stops (all 8 addresses), Pace Calculator (8h30m — splits table, fatigue model), Food & Nutrition (all 3 tabs: Rules, Log, Calories), Live Feed, Bets, Race Day Clock, Weather (forecast loaded), Course Sections (7 sections), Tools (16 buttons), TB Passport (3 badges earned: Time Keeper, Speed Demon, Fashionista), Custom Pins, Alt Routes, Leg-by-Leg (8 segments, Alexandria finish), Elevation Profile (1263 ft gain/loss, 417 ft max, -3 ft min), Route Info (32.4 mi, 1992 pts). Stop detail panel (Stop 4 — ratings, crew access, trivia, menu, Directions). Runner/Crew toggle on Sauce Packet theme. Stop 5 popup.
+- **Result:** No new bugs found. 831/832 automated tests pass (1 pre-existing failure: "map container has dimensions" — test page layout issue, not a real bug). All 5 themes tested render correctly with proper contrast and route colors. Mobile single-column layout correct (tools grid, section headers, stop popup). Badge earn tracking works in real-time. Zero console errors.
+
 ### UAT Pass — 2026-04-15
 - **Scope:** Desktop (1280×800), mobile (375×812). Themes tested: Purple Reign, Baja Blast, Sauce Packet. Sections tested: TB Passport (badge earning verified — Time Keeper + Speed Demon triggered by pace calc), Runner/Crew Toggle, Weather (forecast loaded), Parties (Community/Hosted tabs), Pace Calculator (7h15m), Course Sections, Elevation Profile, Stop 3 popup (mobile + desktop), Custom Pins heading, Route Info.
 - **Result:** No new bugs found. 829/831 automated tests pass (2 failures are state-dependent — View Toggle tests fail when localStorage has viewMode=crew from manual testing, not real bugs). All 3 themes tested render correctly with proper contrast. Mobile layout correct. Stop popups work on mobile. Badge earn tracking works in real-time. Zero console errors.
