@@ -2,7 +2,7 @@
   "name": "Taco Bell DC 50K Route Planner",
   "short_name": "TB DC 50K",
   "description": "32.4-mile ultramarathon route planner through 8 Taco Bell locations in DC/Arlington/Alexandria",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#1a002e",
   "theme_color": "#682a8d",
@@ -14,5 +14,6 @@
       "type": "image/svg+xml",
       "purpose": "any"
     }
-  ]
+  ],
+  "scope": "./"
 }
