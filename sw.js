@@ -1,25 +1,26 @@
 // Service Worker for TB DC 50K — Offline caching
-importScripts('/config.js');
+importScripts('./config.js');
 
-const CACHE_NAME = 'tb50k-v19';
+const CACHE_PREFIX = 'tb50k-';
+const CACHE_NAME = CACHE_PREFIX + 'v20';
 
 // Build versioned asset paths from ASSET_VERSIONS (single source of truth in config.js)
 function versionedPath(file) {
   const v = typeof ASSET_VERSIONS !== 'undefined' && ASSET_VERSIONS[file];
-  return v ? `/${file}?v=${v}` : `/${file}`;
+  return v ? `./${file}?v=${v}` : `./${file}`;
 }
 
 // Core assets — cached on install (required for initial page load)
 const CORE_ASSETS = [
-  '/',
-  '/index.html',
+  './',
+  './index.html',
   versionedPath('dist/style.min.css'),
   versionedPath('dist/bundle.min.js'),
-  versionedPath('dist/gpx_data.min.js'),
-  '/config.js',
-  '/backend-loader.js?v=1',
-  '/block_parties.json',
-  '/manifest.json',
+  './dist/gpx_data.min.js',
+  './config.js',
+  './backend-loader.js?v=1',
+  './block_parties.json',
+  './manifest.json',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
 ];
@@ -44,7 +45,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((names) => {
       return Promise.all(
-        names.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n))
+        names.filter((n) => n.startsWith(CACHE_PREFIX) && n !== CACHE_NAME).map((n) => caches.delete(n))
       );
     })
   );
@@ -58,10 +59,24 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
+  // Never cache authenticated API responses.
+  if (url.hostname.includes('supabase')) return;
+
+  // Keep the application shell fresh online and fall back to the offline copy.
+  if (event.request.mode === 'navigate') {
+    event.respondWith(fetch(event.request).then((response) => {
+      if (response.ok) {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put('./index.html', clone));
+      }
+      return response;
+    }).catch(() => caches.match('./index.html')));
+    return;
+  }
+
   // Network-first for API endpoints and dynamic data
   if (url.hostname.includes('api.weather.gov') ||
-      url.hostname.includes('overpass-api.de') ||
-      url.hostname.includes('supabase')) {
+      url.hostname.includes('overpass-api.de')) {
     event.respondWith(
       fetch(event.request).then((response) => {
         const clone = response.clone();
