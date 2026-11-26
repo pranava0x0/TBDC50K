@@ -1,120 +1,24 @@
-// Service Worker for TB DC 50K — Offline caching
-importScripts('./config.js');
-
-const CACHE_PREFIX = 'tb50k-';
-const CACHE_NAME = CACHE_PREFIX + 'v20';
-
-// Build versioned asset paths from ASSET_VERSIONS (single source of truth in config.js)
-function versionedPath(file) {
-  const v = typeof ASSET_VERSIONS !== 'undefined' && ASSET_VERSIONS[file];
-  return v ? `./${file}?v=${v}` : `./${file}`;
-}
-
-// Core assets — cached on install (required for initial page load)
-const CORE_ASSETS = [
-  './',
-  './index.html',
-  versionedPath('dist/style.min.css'),
-  versionedPath('dist/bundle.min.js'),
-  './dist/gpx_data.min.js',
-  './config.js',
-  './backend-loader.js?v=1',
-  './block_parties.json',
-  './manifest.json',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-];
-
-// Backend assets — NOT cached on install; cached on-demand when lazy-loaded
-// (Supabase SDK, config, auth, db, prefs-sync, food-log, social-feed, party, betting)
-
-// Install: cache core assets
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(CORE_ASSETS).catch((err) => {
-        console.warn('SW: Some assets failed to cache:', err);
-      });
-    })
-  );
-  self.skipWaiting();
+// Offline support for the self-contained race guide.
+const CACHE = 'tb50k-v21';
+const SHELL = new URL('./index.html', self.location.href).href;
+const GPX = new URL('./route.gpx', self.location.href).href;
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll([SHELL, GPX])).then(() => self.skipWaiting()));
 });
-
-// Activate: clean old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((names) => {
-      return Promise.all(
-        names.filter((n) => n.startsWith(CACHE_PREFIX) && n !== CACHE_NAME).map((n) => caches.delete(n))
-      );
-    })
-  );
-  self.clients.claim();
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('tb50k-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim()));
 });
-
-// Fetch: network-first for API calls, cache-first for static assets
-self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-
-  // Skip non-GET requests
+self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
-
-  // Never cache authenticated API responses.
-  if (url.hostname.includes('supabase')) return;
-
-  // Keep the application shell fresh online and fall back to the offline copy.
-  if (event.request.mode === 'navigate') {
-    event.respondWith(fetch(event.request).then((response) => {
-      if (response.ok) {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put('./index.html', clone));
-      }
+  const url = new URL(event.request.url);
+  const scope = new URL(self.registration.scope);
+  if (url.origin !== scope.origin || !url.pathname.startsWith(scope.pathname)) return;
+  if (event.request.mode === 'navigate' && (url.pathname === scope.pathname || url.pathname === new URL(SHELL).pathname)) {
+    event.respondWith(fetch(event.request).then(async response => {
+      if (response.ok) {const cache = await caches.open(CACHE); await cache.put(SHELL,response.clone());}
       return response;
-    }).catch(() => caches.match('./index.html')));
-    return;
+    }).catch(() => caches.match(SHELL)));
+  } else if (url.href === GPX) {
+    event.respondWith(caches.match(GPX).then(cached => cached || fetch(event.request)));
   }
-
-  // Network-first for API endpoints and dynamic data
-  if (url.hostname.includes('api.weather.gov') ||
-      url.hostname.includes('overpass-api.de')) {
-    event.respondWith(
-      fetch(event.request).then((response) => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        return response;
-      }).catch(() => caches.match(event.request))
-    );
-    return;
-  }
-
-  // Cache-first for map tiles (large, rarely change)
-  if (url.hostname.includes('basemaps.cartocdn.com') ||
-      url.hostname.includes('tile.openstreetmap.org') ||
-      url.hostname.includes('tile.opentopomap.org') ||
-      url.hostname.includes('arcgisonline.com')) {
-    event.respondWith(
-      caches.match(event.request).then((cached) => {
-        if (cached) return cached;
-        return fetch(event.request).then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          return response;
-        });
-      })
-    );
-    return;
-  }
-
-  // Cache-first for static assets
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).then((response) => {
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return response;
-      });
-    })
-  );
 });
